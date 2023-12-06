@@ -1,5 +1,5 @@
 # My Personal Blog
 
-https://hosseinjalili.github.io/myblog
+https://hosseinjalili.github.io/blog
 
 ---
