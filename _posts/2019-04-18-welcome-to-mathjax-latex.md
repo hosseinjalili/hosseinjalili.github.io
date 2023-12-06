@@ -1,6 +1,6 @@
 ---
 title: "استفاده از KaTeX در Jekyll"
-date: 2023-12-6T121:45:00+03:30
+date: 2023-12-6T21:45:00+03:30
 categories:
   - math
 tags:
