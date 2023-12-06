@@ -1,5 +1,5 @@
 ---
-title: "اولین پست ریاضی با KaTeX"
+title: "استفاده از KaTeX در Jekyll"
 date: 2022-03-14T14:30:00+03:30
 categories:
   - math
