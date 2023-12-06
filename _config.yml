@@ -45,7 +45,7 @@ kramdown:
   math_engine: katex
 
 
-includes:
+include:
   - _pages
 
 # Exclude from processing.
