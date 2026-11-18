@@ -28,7 +28,7 @@ const server = await createServer({
 });
 try {
   const { default: App } = await server.ssrLoadModule("/src/App.jsx");
-  const { routes, metadata } = await server.ssrLoadModule("/src/content.js");
+  const { routes, metadata, profile } = await server.ssrLoadModule("/src/content.js");
   const journal = JSON.parse(await readFile("content/journal.json", "utf8"));
   const posts = articleRecords(journal, (body) =>
     sanitize(marked.parse(body), {
@@ -87,7 +87,7 @@ try {
   });
   await writeFile(
     join(output, "feed.xml"),
-    '<feed xmlns="http://www.w3.org/2005/Atom"><title>روزمرگی‌ها</title><author><name>حسین جلیلی</name></author><id>' +
+    '<feed xmlns="http://www.w3.org/2005/Atom"><title>روزمرگی‌ها</title><author><name>' + escape(profile.name) + '</name></author><id>' +
       origin +
       '/</id><link rel="self" href="' +
       origin +

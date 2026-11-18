@@ -43,7 +43,7 @@ function Header({ path, posts }) {
       : path;
   return (
     <header className="header wrap">
-      <a className="brand" href="/" aria-label="حسین جلیلی، خانه">
+      <a className="brand" href="/" aria-label={profile.name + "، خانه"}>
         <b dir="ltr">
           hj<span>.</span>
         </b>
@@ -104,12 +104,10 @@ function Portrait() {
           src="/media/hossein.webp"
           width="906"
           height="920"
-          alt="حسین جلیلی در طبیعت"
+          alt={profile.name + " در طبیعت"}
         />
       </div>
-      <figcaption dir="ltr">
-        HOSSEIN <b>JALILI</b>
-      </figcaption>
+      <figcaption dir="ltr" lang="en">{profile.englishName}</figcaption>
     </figure>
   );
 }
@@ -123,9 +121,8 @@ function Home({ posts }) {
             توسعه‌دهندهٔ نرم‌افزار
           </p>
           <h1>
-            حسین
-            <br />
-            <em>جلیلی</em>
+            {profile.givenName}{" "}
+            <em>{profile.familyName}</em>
             <span className="name-dot">.</span>
           </h1>
           <p className="intro">
@@ -244,7 +241,7 @@ function Resume() {
       <h1>
         کار و تجربه<em>.</em>
       </h1>
-      <p className="lead">سید حسین جلیلی حسن کیاده</p>
+      <p className="lead">{profile.name}</p>
       <p>توسعه‌دهندهٔ نرم‌افزار · تهران</p>
       <div className="actions">
         <a className="button" href={profile.linkedin}>
@@ -327,7 +324,7 @@ function About() {
           دربارهٔ من
         </p>
         <h1>
-          حسین جلیلی<em>.</em>
+          {profile.name}<em>.</em>
         </h1>
         <p className="lead">یک برنامه‌نویس، یک گیمر خسته</p>
         <div
@@ -376,7 +373,7 @@ export default function App({ path, posts }) {
       <main id="main">{page}</main>
       <footer className="wrap">
         <a className="footer-name" href="/">
-          حسین جلیلی<span>.</span>
+          {profile.name}<span>.</span>
         </a>
         <div>
           <a href="/admin/">مدیریت نوشته‌ها</a>

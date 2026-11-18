@@ -1,4 +1,9 @@
+const givenName = "سید حسین";
+const familyName = "جلیلی حسن کیاده";
 export const profile = {
+  givenName, familyName,
+  name: givenName + " " + familyName,
+  englishName: "Hossein Jalili HasanKiadeh",
   linkedin: "https://www.linkedin.com/in/hossein-jalili/",
   github: "https://github.com/hosseinjalili",
   email: "hossein.jalili@outlook.com",
@@ -12,7 +17,7 @@ export const formatDate = (value) =>
   }).format(new Date(value + "T12:00:00Z"));
 
 const pages = {
-  "/": "حسین جلیلی",
+  "/": profile.name,
   "/admin/": "مدیریت نوشته‌ها",
   "/resume/": "رزومه",
   "/posts/": "روزمرگی‌ها",
@@ -31,10 +36,10 @@ export function metadata(path, posts) {
   return {
     title:
       path === "/"
-        ? "حسین جلیلی | توسعه‌دهندهٔ نرم‌افزار"
-        : title + " | حسین جلیلی",
+        ? profile.name + " | توسعه‌دهندهٔ نرم‌افزار"
+        : title + " | " + profile.name,
     description:
       post?.excerpt ||
-      "پروفایل، رزومه و یادداشت‌های شخصی حسین جلیلی، توسعه‌دهندهٔ نرم‌افزار.",
+      "پروفایل، رزومه و یادداشت‌های شخصی " + profile.name + "، توسعه‌دهندهٔ نرم‌افزار.",
   };
 }

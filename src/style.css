@@ -154,8 +154,8 @@ nav a:hover:not([aria-current]) {
   background: var(--blue);
 }
 .hero h1 {
-  font-size: clamp(77px, 8.7vw, 124px);
-  line-height: 1.12;
+  font-size: clamp(44px, 5.2vw, 78px);
+  line-height: 1.45;
   font-weight: 900;
   margin: 17px 0 11px;
 }
@@ -163,6 +163,9 @@ nav a:hover:not([aria-current]) {
 .inner h1 em {
   font-style: normal;
   color: var(--blue);
+}
+.hero h1 em {
+  display: inline-block;
 }
 .name-dot {
   color: var(--blue);
@@ -277,18 +280,17 @@ a:hover .arrow {
 }
 .poster figcaption {
   position: absolute;
-  inset: auto 0 -0.18em;
+  inset: auto 0 0;
+  padding: .2em .45em;
+  background: #2237a9;
   color: white;
   white-space: nowrap;
   text-align: center;
-  font-size: clamp(35px, 5.5vw, 81px);
-  font-weight: 250;
-  letter-spacing: -0.068em;
+  font-size: clamp(16px, 2.2vw, 32px);
+  font-weight: 650;
+  letter-spacing: -.025em;
   line-height: 1.24;
   pointer-events: none;
-}
-.poster figcaption b {
-  font-weight: 890;
 }
 .journal {
   padding-block: 28px 70px;
@@ -592,14 +594,8 @@ footer a:hover,
     padding-block: 28px 32px;
   }
   .hero h1 {
-    font-size: clamp(54px, 12vw, 78px);
+    font-size: clamp(36px, 8vw, 54px);
     margin-block: 12px;
-  }
-  .hero h1 br {
-    display: none;
-  }
-  .hero h1 em:before {
-    content: " ";
   }
   .hero .actions {
     margin-top: 16px;
@@ -611,7 +607,7 @@ footer a:hover,
     inset: 4% 18% 11%;
   }
   .poster figcaption {
-    font-size: clamp(42px, 9vw, 75px);
+    font-size: clamp(17px, 4.6vw, 28px);
   }
   .cards {
     grid-template-columns: 1fr;
