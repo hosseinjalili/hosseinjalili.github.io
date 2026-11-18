@@ -34,7 +34,7 @@ export function metadata(path, posts, lang = "fa") {
   const post = posts.find((p) => p.url === path);
   if (lang === "en") {
     const labels = {
-      "/": "Software developer",
+      "/": "Senior Full Stack Developer",
       "/resume/": "Résumé",
       "/posts/": "Journal",
       "/about/": "About",
@@ -55,12 +55,12 @@ export function metadata(path, posts, lang = "fa") {
   return {
     title:
       path === "/"
-        ? profile.name + " | توسعه‌دهندهٔ نرم‌افزار"
+        ? profile.name + " | توسعه‌دهندهٔ ارشد فول‌استک"
         : title + " | " + profile.name,
     description:
       post?.excerpt ||
       "پروفایل، رزومه و یادداشت‌های شخصی " +
         profile.name +
-        "، توسعه‌دهندهٔ نرم‌افزار.",
+        "، توسعه‌دهندهٔ ارشد فول‌استک.",
   };
 }

@@ -737,3 +737,95 @@ footer a:hover,
     min-height: 40px;
   }
 }
+
+.resume-focus {
+  text-align: match-parent;
+  color: var(--muted);
+}
+.resume-entries,
+.recommendations {
+  min-width: 0;
+}
+.resume-entries section + section,
+.recommendation + .recommendation {
+  margin-block-start: 1.8rem;
+}
+.resume-entries h2 {
+  font: inherit;
+  font-size: 1.35rem;
+  font-weight: 750;
+}
+.resume-entries h3 {
+  font-size: 1.07rem;
+  line-height: 1.6;
+}
+.positions {
+  list-style: none;
+  border-inline-start: 2px solid var(--line);
+  margin: 1rem 0.4rem 0.4rem;
+  padding: 0 1.2rem;
+}
+.positions li {
+  position: relative;
+}
+.positions li + li {
+  margin-block-start: 1.25rem;
+}
+.positions li::before {
+  content: "";
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--blue);
+  position: absolute;
+  inset-inline-start: calc(-1.2rem - 0.34rem);
+  top: 0.57rem;
+}
+.resume-dates {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0.12rem 0 0.4rem;
+}
+.skills {
+  align-content: start;
+}
+.recommendation figcaption {
+  display: flex;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+.recommendation figcaption a {
+  color: var(--blue);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.recommendation small {
+  color: var(--muted);
+}
+.recommendation blockquote {
+  border-inline-start: 2px solid var(--line);
+  padding-inline-start: 1.1rem;
+  margin: 0.8rem 0;
+}
+.recommendation blockquote p + p {
+  margin-block-start: 0.75rem;
+}
+@media print {
+  .resume-list .recommendation figcaption a {
+    display: inline;
+    color: inherit;
+  }
+  .resume-list {
+    display: block;
+  }
+  .resume-list dt {
+    break-after: avoid;
+  }
+  .resume-entries h2,
+  .resume-entries h3,
+  .recommendation figcaption {
+    break-after: avoid;
+  }
+}

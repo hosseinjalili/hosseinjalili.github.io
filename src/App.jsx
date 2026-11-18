@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { profile, formatDate, metadata } from "./content";
+import { employers, education, recommendations, topSkills } from "./resume";
 import about from "../_pages/about.md";
 
 const arrow = <i className="arrow" aria-hidden="true" />;
@@ -141,7 +142,7 @@ function Home({ posts }) {
         <div className="hero-copy">
           <p className="eyebrow">
             <b />
-            {t("توسعه‌دهندهٔ نرم‌افزار", "Software developer")}
+            {t("توسعه‌دهندهٔ ارشد فول‌استک", "Senior Full Stack Developer")}
           </p>
           <h1>
             {t(profile.givenName, "Hossein")}{" "}
@@ -270,6 +271,27 @@ function Article({ post }) {
     </article>
   );
 }
+function ResumeDates({ start, end }) {
+  const { lang, t } = useLanguage();
+  const dateLabel = (value) =>
+    new Intl.DateTimeFormat(lang === "fa" ? "fa-IR-u-ca-gregory" : "en", {
+      year: "numeric",
+      month: value.length === 7 ? "long" : undefined,
+      timeZone: "UTC",
+    }).format(
+      new Date(value + (value.length === 4 ? "-01-01" : "-01") + "T12:00:00Z"),
+    );
+  return (
+    <p className="resume-dates">
+      <time dateTime={start}>{dateLabel(start)}</time> {t("تا", "–")}{" "}
+      {end ? (
+        <time dateTime={end}>{dateLabel(end)}</time>
+      ) : (
+        t("اکنون", "Present")
+      )}
+    </p>
+  );
+}
 function Resume() {
   const { lang, t } = useLanguage();
   return (
@@ -284,7 +306,13 @@ function Resume() {
       </h1>
       <p className="lead">{t(profile.name, profile.englishName)}</p>
       <p>
-        {t("توسعه‌دهندهٔ نرم‌افزار · تهران", "Software developer · Tehran")}
+        {t(
+          "توسعه‌دهندهٔ ارشد فول‌استک · ایران",
+          "Senior Full Stack Developer · Iran",
+        )}
+      </p>
+      <p dir="ltr" className="resume-focus">
+        AI · .NET · Angular · React
       </p>
       <div className="actions">
         <Link className="button" href={profile.linkedin}>
@@ -296,49 +324,44 @@ function Resume() {
       </div>
       <dl className="resume-list">
         <dt>{t("تجربهٔ کاری", "Work experience")}</dt>
-        <dd>
-          <strong>{t("فیوسافت", "FuSoft")}</strong>
-          <Link href="https://fusoft-co.com/" className="textlink">
-            {t("وب‌سایت شرکت", "Company website")} {arrow}
-          </Link>
+        <dd className="resume-entries">
+          {employers.map((company) => (
+            <section key={company.name[1]} className="employer">
+              <h2>{t(...company.name)}</h2>
+              <ul className="positions">
+                {company.positions.map((role) => (
+                  <li key={role.title[1]}>
+                    <h3>{t(...role.title)}</h3>
+                    <ResumeDates start={role.start} end={role.end} />
+                    {role.note && <p>{t(...role.note)}</p>}
+                  </li>
+                ))}
+              </ul>
+              {company.website && (
+                <a href={company.website} className="textlink">
+                  {t("وب‌سایت شرکت", "Company website")} {arrow}
+                </a>
+              )}
+            </section>
+          ))}
         </dd>
-        <dt>{t("مهارت‌ها", "Skills")}</dt>
+        <dt>{t("مهارت‌های برتر", "Top skills")}</dt>
         <dd className="skills">
-          {[
-            "UI/UX",
-            "React",
-            "Angular",
-            "Node.js",
-            "NestJS",
-            ".NET",
-            "Scrum",
-            "C#",
-            "TypeScript",
-            "JavaScript",
-            "HTML5",
-            "CSS3",
-            "Sass",
-            "Python",
-            "SQL Server",
-            "AngularJS",
-            "AWS",
-            "Azure",
-          ].map((x) => (
-            <span dir="ltr" key={x}>
-              {x}
+          {topSkills.map((skill) => (
+            <span key={skill[1]} dir="auto">
+              {t(...skill)}
             </span>
           ))}
         </dd>
         <dt>{t("تحصیلات", "Education")}</dt>
-        <dd>
-          <strong>{t("کارشناسی ارشد", "Master of Science")}</strong>
-          <p>
-            {t(
-              "دانشگاه آزاد اسلامی، واحد علوم و تحقیقات",
-              "Islamic Azad University, Science and Research Branch",
-            )}
-          </p>
-          <p>{t("۱۳۹۴ تا ۱۳۹۹", "1394–1399 (Solar Hijri calendar)")}</p>
+        <dd className="resume-entries">
+          {education.map((entry) => (
+            <section key={entry.start}>
+              <h3>{t(...entry.degree)}</h3>
+              <p>{t(...entry.school)}</p>
+              <ResumeDates start={entry.start} end={entry.end} />
+            </section>
+          ))}
         </dd>
         <dt>{t("پروژه", "Project")}</dt>
         <dd>
@@ -390,7 +413,24 @@ function Resume() {
           </Link>
         </dd>
         <dt>{t("توصیه‌نامه‌ها", "Recommendations")}</dt>
-        <dd>
+        <dd className="recommendations">
+          {recommendations.map((rec) => (
+            <figure key={rec.url} className="recommendation">
+              <figcaption>
+                <a href={rec.url} lang="en" dir="ltr">
+                  {rec.name}
+                </a>
+                {lang === "fa" && rec.translated && (
+                  <small>ترجمه از انگلیسی</small>
+                )}
+              </figcaption>
+              <blockquote lang={lang}>
+                {rec[lang].map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </blockquote>
+            </figure>
+          ))}
           <Link
             className="textlink"
             href={profile.linkedin + "details/recommendations/"}
