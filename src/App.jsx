@@ -8,6 +8,8 @@ import {
   workDuration,
 } from "./resume";
 import about from "../_pages/about.md";
+import portrait from "./assets/hossein-portrait.webp?inline";
+import githubMark from "/media/github-mark.png?inline";
 import { useCurrentMonth } from "./useCurrentMonth";
 import { usePortraitMotion } from "./usePortraitMotion";
 import { Language, useLanguage, localPath, Link } from "./locale";
@@ -96,6 +98,7 @@ function Art({ slug, cover, featured = false }) {
           src={cover}
           alt=""
           loading={featured ? "eager" : "lazy"}
+          fetchPriority={featured ? undefined : "low"}
           decoding="async"
         />
       </div>
@@ -239,12 +242,11 @@ function Home({ posts }) {
             <div className="cinema-media">
               <div className="cinema-linework" aria-hidden="true" />
               <img
-                src="/media/hossein.webp"
+                src={portrait}
                 className="cinema-photo"
                 alt={t(profile.name, profile.englishName)}
-                width="906"
-                height="920"
-                fetchPriority="high"
+                width="560"
+                height="569"
               />
             </div>
           </figure>
@@ -697,7 +699,7 @@ function Page({ path, posts }) {
           <a href={profile.github} lang="en" dir="ltr">
             <img
               className="github-mark"
-              src="/media/github-mark.png"
+              src={githubMark}
               width="19"
               height="19"
               alt=""

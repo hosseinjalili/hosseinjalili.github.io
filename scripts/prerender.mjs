@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir, cp, readdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, cp, readdir, unlink } from "node:fs/promises";
 import { join, dirname, resolve } from "node:path";
 import { createServer } from "vite";
 import { marked } from "marked";
@@ -13,9 +13,23 @@ const shell = await readFile(join(output, "index.html"), "utf8");
 const stylesheet = shell.match(
   /<link rel="stylesheet" crossorigin href="(\/site-assets\/[^"]+\.css)">/,
 );
+const script = shell.match(
+  /<script type="module" crossorigin src="(\/site-assets\/[^"]+\.js)"><\/script>/,
+);
 if (!stylesheet) throw new Error("The built page is missing its stylesheet");
-const css = await readFile(join(output, stylesheet[1]), "utf8");
-const template = shell.replace(stylesheet[0], () => `<style>${css}</style>`);
+if (!script) throw new Error("The built page is missing its script");
+const stylesheetPath = join(output, stylesheet[1]);
+const css = await readFile(stylesheetPath, "utf8");
+// The prerendered page can finish loading before React's network request.
+const enhancement = `<script>
+  addEventListener("DOMContentLoaded", () => {
+    import(${JSON.stringify(script[1])}).catch(console.error);
+  }, { once: true });
+</script>`;
+const template = shell
+  .replace(stylesheet[0], () => `<style>${css}</style>`)
+  .replace(script[0], "")
+  .replace("</body>", () => `${enhancement}\n</body>`);
 const escape = (value) =>
   String(value).replace(
     /[&<>"']/g,
@@ -123,6 +137,7 @@ try {
       "</feed>",
   );
   // This Pages site serves master directly. Only copy the public build output.
+  await unlink(stylesheetPath);
   for (const name of await readdir(output)) {
     if (name !== "content")
       await cp(join(output, name), resolve(name), { recursive: true });
