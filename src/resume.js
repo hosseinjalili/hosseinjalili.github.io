@@ -1,6 +1,6 @@
 export const employers = [
   {
-    name: ["فیوسافت", "FuSoft"],
+    name: ["رویای سبز نرم‌افزارهای آینده", "FuSoft"],
     website: "https://fusoft-co.com/",
     positions: [
       { title: ["رئیس هیئت‌مدیره", "Chairman of the Board"], start: "2021-04" },
@@ -29,7 +29,8 @@ export const employers = [
     ],
   },
   {
-    name: ["کارگزاری نهایت‌نگر", "Nahayatnegar Broker"],
+    name: ["شرکت کارگزاری نهایت‌نگر", "Nahayatnegar Broker"],
+    website: "https://www.nahayatnegar.com/homePage/brokerage",
     positions: [
       {
         title: [
@@ -46,7 +47,8 @@ export const employers = [
     ],
   },
   {
-    name: ["برید سامانه نوین", "Baridsoft"],
+    name: ["شرکت برید سامانه نوین", "Baridsoft"],
+    website: "https://baridsoft.net/",
     positions: [
       {
         title: ["توسعه‌دهندهٔ جونیور فول‌استک", "Junior Full Stack Developer"],
@@ -60,6 +62,47 @@ export const employers = [
     ],
   },
 ];
+
+function monthIndex(value) {
+  const [year, month] = value.split("-").map(Number);
+  return year * 12 + month - 1;
+}
+
+export function workDuration(positions, lang, today = new Date()) {
+  const currentMonth = today.getUTCFullYear() * 12 + today.getUTCMonth();
+  const periods = positions
+    .map(({ start, end }) => [
+      monthIndex(start),
+      end ? monthIndex(end) : currentMonth,
+    ])
+    .sort(([first], [second]) => first - second);
+
+  let total = 0;
+  let coveredThrough = -Infinity;
+  for (const [first, last] of periods) {
+    // Count the displayed start and end months once, even for concurrent roles.
+    total += Math.max(0, last - Math.max(first, coveredThrough + 1) + 1);
+    coveredThrough = Math.max(coveredThrough, last);
+  }
+
+  const years = Math.floor(total / 12);
+  const months = total % 12;
+  if (lang === "fa") {
+    const number = new Intl.NumberFormat("fa-IR");
+    return [
+      years && number.format(years) + " سال",
+      (months || !years) && number.format(months) + " ماه",
+    ]
+      .filter(Boolean)
+      .join(" و ");
+  }
+  return [
+    years && years + (years === 1 ? " yr" : " yrs"),
+    (months || !years) && months + (months === 1 ? " mo" : " mos"),
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
 
 export const education = [
   {

@@ -819,6 +819,26 @@ footer a:hover,
   font-size: 1.35rem;
   font-weight: 750;
 }
+.employer-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0 1rem;
+}
+.employer-alias,
+.resume-total {
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+.employer-site {
+  color: var(--accent);
+  font-size: 0.86rem;
+}
+.resume-total {
+  color: var(--ink);
+  margin-block-start: 0.3rem;
+}
 .resume-entries h3 {
   font-size: 1.07rem;
   line-height: 1.6;

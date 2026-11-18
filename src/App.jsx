@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { profile, formatDate, metadata } from "./content";
-import { employers, education, recommendations, topSkills } from "./resume";
+import {
+  employers,
+  education,
+  recommendations,
+  topSkills,
+  workDuration,
+} from "./resume";
 import about from "../_pages/about.md";
 
 const arrow = <i className="arrow" aria-hidden="true" />;
@@ -323,6 +329,12 @@ function ResumeDates({ start, end }) {
 }
 function Resume() {
   const { lang, t } = useLanguage();
+  const today = new Date();
+  const totalExperience = workDuration(
+    employers.flatMap((company) => company.positions),
+    lang,
+    today,
+  );
   return (
     <section className="wrap inner">
       <p className="eyebrow">
@@ -352,11 +364,36 @@ function Resume() {
         </button>
       </div>
       <dl className="resume-list">
-        <dt>{t("تجربهٔ کاری", "Work experience")}</dt>
+        <dt>
+          {t("تجربهٔ کاری", "Work experience")}
+          <p className="resume-total">
+            {t("کل سابقه", "Total experience")} · {totalExperience}
+          </p>
+        </dt>
         <dd className="resume-entries">
           {employers.map((company) => (
             <section key={company.name[1]} className="employer">
-              <h2>{t(...company.name)}</h2>
+              <header className="employer-header">
+                <div>
+                  <h2>
+                    {t(...company.name)}
+                    {lang === "fa" && (
+                      <>
+                        {" "}
+                        <bdi className="employer-alias" lang="en" dir="ltr">
+                          ({company.name[1]})
+                        </bdi>
+                      </>
+                    )}
+                  </h2>
+                  <p className="resume-dates">
+                    {workDuration(company.positions, lang, today)}
+                  </p>
+                </div>
+                <a href={company.website} className="textlink employer-site">
+                  {t("وب‌سایت شرکت", "Company website")} {arrow}
+                </a>
+              </header>
               <ul className="positions">
                 {company.positions.map((role) => (
                   <li key={role.title[1]}>
@@ -366,11 +403,6 @@ function Resume() {
                   </li>
                 ))}
               </ul>
-              {company.website && (
-                <a href={company.website} className="textlink">
-                  {t("وب‌سایت شرکت", "Company website")} {arrow}
-                </a>
-              )}
             </section>
           ))}
         </dd>
