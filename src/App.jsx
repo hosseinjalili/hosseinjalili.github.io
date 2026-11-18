@@ -118,8 +118,8 @@ function Portrait() {
   const { lang, t } = useLanguage();
   return (
     <figure className="poster">
-      <div className="poster-grid" />
-      <div className="orbit" />
+      <div className="poster-grid" aria-hidden="true" />
+      <div className="portrait-arch" aria-hidden="true" />
       <div className="photo">
         <img
           src="/media/hossein.webp"
@@ -146,8 +146,10 @@ function Home({ posts }) {
           </p>
           <h1>
             {t(profile.givenName, "Hossein")}{" "}
-            <em>{t(profile.familyName, "Jalili HasanKiadeh")}</em>
-            <span className="name-dot">.</span>
+            <em>
+              {t(profile.familyName, "Jalili HasanKiadeh")}
+              <span aria-hidden="true">.</span>
+            </em>
           </h1>
           <p className="intro">
             {t(

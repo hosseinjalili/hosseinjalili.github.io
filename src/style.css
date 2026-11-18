@@ -1,25 +1,31 @@
 @import "@fontsource-variable/vazirmatn";
 :root {
-  --paper: #f7f5f0;
-  --ink: #20222b;
-  --muted: #5f626b;
-  --line: #d4d1cb;
-  --blue: #344cdd;
-  --bright: #344cdd;
-  --raised: #fffdf8;
+  --paper: #f5f1e9;
+  --ink: #282421;
+  --muted: #6a5f56;
+  --line: #cfc4b6;
+  --accent: #8c302e;
+  --button: #812c2b;
+  --raised: #fffcf5;
+  --stone: #e9e0d1;
+  --frame: #d8c9b4;
+  --engraving: #775d4135;
   color-scheme: light;
   font-family: "Vazirmatn Variable", Tahoma, sans-serif;
   color: var(--ink);
   background: var(--paper);
 }
 :root[data-theme="dark"] {
-  --paper: #191b23;
-  --ink: #f2f0e9;
-  --muted: #b8bac6;
-  --line: #393d4b;
-  --blue: #a2b1ff;
-  --bright: #4058ec;
-  --raised: #262934;
+  --paper: #211e1c;
+  --ink: #f4ebdf;
+  --muted: #c4b5a7;
+  --line: #534841;
+  --accent: #f2a29c;
+  --button: #963c38;
+  --raised: #2f2925;
+  --stone: #2d2926;
+  --frame: #413931;
+  --engraving: #d9b99538;
   color-scheme: dark;
 }
 * {
@@ -39,7 +45,7 @@ a {
 a:focus-visible,
 button:focus-visible,
 input:focus-visible {
-  outline: 3px solid var(--blue);
+  outline: 3px solid var(--accent);
   outline-offset: 4px;
 }
 button,
@@ -87,7 +93,7 @@ button {
 .footer-name span,
 .section-head h2 span,
 .inner h1 em {
-  color: var(--blue);
+  color: var(--accent);
 }
 nav,
 .actions,
@@ -105,14 +111,22 @@ nav {
 nav a {
   font-size: 14px;
   padding: 8px 17px;
-  border-radius: 40px;
+  position: relative;
+  border-radius: 3px;
 }
-nav [aria-current="page"] {
-  background: var(--ink);
-  color: var(--paper);
+.header nav a[aria-current="page"] {
+  color: var(--accent);
+  font-weight: 750;
 }
-nav a:hover:not([aria-current]) {
-  background: var(--line);
+.header nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 34% 2px;
+  height: 2px;
+  background: currentColor;
+}
+.header nav a:hover {
+  background: var(--stone);
 }
 .theme {
   width: 44px;
@@ -133,7 +147,7 @@ nav a:hover:not([aria-current]) {
 .hero,
 .about {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
   gap: clamp(28px, 7vw, 96px);
 }
@@ -149,12 +163,12 @@ nav a:hover:not([aria-current]) {
 }
 .eyebrow b {
   display: block;
-  width: 24px;
-  height: 3px;
-  background: var(--blue);
+  width: 20px;
+  height: 2px;
+  background: var(--accent);
 }
 .hero h1 {
-  font-size: clamp(44px, 5.2vw, 78px);
+  font-size: clamp(39px, 4.45vw, 64px);
   line-height: 1.45;
   font-weight: 900;
   margin: 17px 0 11px;
@@ -162,13 +176,15 @@ nav a:hover:not([aria-current]) {
 .hero h1 em,
 .inner h1 em {
   font-style: normal;
-  color: var(--blue);
+  color: var(--accent);
 }
 .hero h1 em {
-  display: inline-block;
+  display: block;
 }
-.name-dot {
-  color: var(--blue);
+:root[lang="en"] .hero h1 {
+  font-size: clamp(31px, 4.1vw, 58px);
+  line-height: 1.24;
+  letter-spacing: -0.045em;
 }
 .intro {
   max-width: 39ch;
@@ -191,11 +207,11 @@ nav a:hover:not([aria-current]) {
   font-weight: 650;
 }
 .button {
-  background: var(--bright);
+  background: var(--button);
   color: white;
   padding: 11px 22px;
-  border-radius: 7px;
-  box-shadow: 0 4px 12px #172d9016;
+  border-radius: 3px;
+  box-shadow: 0 4px 12px #28130d17;
 }
 .textlink {
   padding: 0;
@@ -226,71 +242,89 @@ a:hover .arrow {
   position: relative;
   overflow: hidden;
   aspect-ratio: 1.12;
-  background: #253ec2;
+  background:
+    radial-gradient(ellipse at 42% 18%, var(--raised), transparent 74%),
+    var(--stone);
+  border: 1px solid var(--line);
   direction: ltr;
-  border-radius: 3px;
 }
 .poster-grid {
   position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(#fff2 1px, transparent 1px),
-    linear-gradient(90deg, #fff2 1px, transparent 1px);
-  background-size: 9% 10%;
+  inset: 4% 4% 12%;
+  border: 1px solid var(--engraving);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 calc(16.66% - 1px),
+      var(--engraving) calc(16.66% - 1px) 16.66%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 calc(16.66% - 1px),
+      var(--engraving) calc(16.66% - 1px) 16.66%
+    ),
+    linear-gradient(
+      143deg,
+      transparent 49.9%,
+      var(--engraving) 50%,
+      transparent 50.25%
+    );
+  mask-image: radial-gradient(ellipse at 50% 45%, #000 42%, #0007 100%);
 }
-.orbit {
+.portrait-arch {
   position: absolute;
-  width: 88%;
-  height: 95%;
-  border: 1px solid #c8f1ff99;
-  transform: rotate(-32deg);
-  left: 7%;
-  top: -11%;
-  border-radius: 50%;
+  inset: 5% 18% 12%;
+  border: 1px solid var(--engraving);
+  border-radius: 50% 50% 0 0 / 40% 40% 0 0;
 }
-.orbit:before,
-.orbit:after {
+.portrait-arch::before,
+.portrait-arch::after {
   content: "";
   position: absolute;
-  inset: 6%;
   border: inherit;
-  border-radius: 50%;
+  border-radius: inherit;
 }
-.orbit:after {
-  inset: 12%;
+.portrait-arch::before {
+  inset: 3% 4% 0;
+}
+.portrait-arch::after {
+  inset: -3% -5% 0;
 }
 .photo {
   position: absolute;
-  inset: 6% 17% 13%;
-  transform: rotate(-6deg);
-  background: #f4f1e9;
-  padding: 2% 2% 6%;
-  box-shadow: 0 16px 30px #11193b55;
-  transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+  inset: 11% 22% 12%;
+  border-radius: 50% 50% 0 0 / 38% 38% 0 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--frame);
+  box-shadow: 0 14px 32px #281d1230;
 }
 .photo img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 20%;
-  filter: grayscale(1) contrast(1.12);
-}
-.poster:hover .photo {
-  transform: rotate(-2deg) translateY(-3px);
+  object-position: center 27%;
+  filter: grayscale(0.85) sepia(0.22);
 }
 .poster figcaption {
   position: absolute;
-  inset: auto 0 0;
-  padding: 0.2em 0.45em;
-  background: #2237a9;
-  color: white;
-  white-space: nowrap;
-  text-align: center;
-  font-size: clamp(16px, 2.2vw, 32px);
+  inset: auto 4% 0;
+  padding: 2% 0 2% 22px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: clamp(12px, 1.25vw, 16px);
   font-weight: 650;
-  letter-spacing: -0.025em;
-  line-height: 1.24;
-  pointer-events: none;
+  line-height: 1.35;
+}
+.poster figcaption::before {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 1px;
+  width: 7px;
+  height: 7px;
+  background: var(--accent);
+  transform: translateY(-50%) rotate(45deg);
 }
 .journal {
   padding-block: 28px 70px;
@@ -351,14 +385,14 @@ time {
   transform: translateY(-5px);
 }
 .waves {
-  background: #879cf6;
+  background: #ded2bc;
 }
 .waves i {
   inset: -35% -40%;
   background: repeating-radial-gradient(
     ellipse at 52% 130%,
     transparent 0 7%,
-    #172d9e 7.4% 10%,
+    #735951 7.4% 10%,
     transparent 10.4% 14%
   );
   rotate: -13deg;
@@ -369,14 +403,14 @@ time {
   left: 19%;
   top: 16%;
   border-radius: 50%;
-  background: #ffd2a1;
+  background: #a44b42;
 }
 .flight {
-  background: linear-gradient(117deg, #ff824f, #f5a884);
+  background: linear-gradient(117deg, #8b3c34, #b16a55);
 }
 .flight i,
 .flight b {
-  background: #512a36;
+  background: #f4e4cc;
   clip-path: polygon(0 40%, 38% 51%, 68% 0, 100% 0, 68% 29%, 43% 90%);
   width: 47%;
   height: 60%;
@@ -385,7 +419,7 @@ time {
   rotate: -7deg;
 }
 .flight b {
-  background: #914131;
+  background: #e0be9f;
   width: 22%;
   height: 31%;
   left: 13%;
@@ -393,14 +427,14 @@ time {
   rotate: 7deg;
 }
 .kite {
-  background-color: #dfdfaa;
+  background-color: #e4d9bd;
   background-image:
-    linear-gradient(#67683b21 1px, transparent 1px),
-    linear-gradient(90deg, #67683b21 1px, transparent 1px);
+    linear-gradient(#73534529 1px, transparent 1px),
+    linear-gradient(90deg, #73534529 1px, transparent 1px);
   background-size: 19px 19px;
 }
 .kite i {
-  background: linear-gradient(32deg, #423556 49.5%, #847c9e 50%);
+  background: linear-gradient(32deg, #5d3d35 49.5%, #9c6354 50%);
   width: 34%;
   height: 76%;
   left: 31%;
@@ -412,7 +446,7 @@ time {
   height: 34%;
   left: 1%;
   top: 73%;
-  border-bottom: 2px solid #423556;
+  border-bottom: 2px solid #5d3d35;
   border-radius: 50%;
   rotate: -33deg;
 }
@@ -456,7 +490,7 @@ input {
   margin-block: 1em;
 }
 .prose a {
-  color: var(--blue);
+  color: var(--accent);
   text-decoration: underline;
 }
 .prose img {
@@ -472,7 +506,7 @@ input {
   overflow: auto;
 }
 .reading .textlink {
-  color: var(--blue);
+  color: var(--accent);
 }
 .resume-list {
   display: grid;
@@ -552,11 +586,11 @@ footer a:hover,
 @keyframes develop {
   from {
     opacity: 0.4;
-    transform: rotate(-2deg) translateY(12px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
-    transform: rotate(-6deg) translateY(0);
+    transform: translateY(0);
   }
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -597,6 +631,9 @@ footer a:hover,
     font-size: clamp(36px, 8vw, 54px);
     margin-block: 12px;
   }
+  :root[lang="en"] .hero h1 {
+    font-size: clamp(31px, 8.5vw, 48px);
+  }
   .hero .actions {
     margin-top: 16px;
   }
@@ -604,10 +641,10 @@ footer a:hover,
     aspect-ratio: 1.43;
   }
   .photo {
-    inset: 4% 18% 11%;
+    inset: 10% 24% 13%;
   }
-  .poster figcaption {
-    font-size: clamp(17px, 4.6vw, 28px);
+  .portrait-arch {
+    inset: 5% 20% 13%;
   }
   .cards {
     grid-template-columns: 1fr;
@@ -674,9 +711,6 @@ footer a:hover,
     animation: none !important;
     transition: none !important;
   }
-  .poster:hover .photo {
-    transform: rotate(-6deg);
-  }
 }
 @media print {
   .header,
@@ -705,7 +739,7 @@ footer a:hover,
 }
 .header-tools a {
   font-weight: 650;
-  color: var(--blue);
+  color: var(--accent);
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -776,7 +810,7 @@ footer a:hover,
   width: 0.55rem;
   height: 0.55rem;
   border-radius: 50%;
-  background: var(--blue);
+  background: var(--accent);
   position: absolute;
   inset-inline-start: calc(-1.2rem - 0.34rem);
   top: 0.57rem;
@@ -796,7 +830,7 @@ footer a:hover,
   flex-wrap: wrap;
 }
 .recommendation figcaption a {
-  color: var(--blue);
+  color: var(--accent);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 4px;
