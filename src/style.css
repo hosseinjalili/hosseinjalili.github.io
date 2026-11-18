@@ -565,9 +565,6 @@ footer a:hover,
   .photo {
     animation: develop 0.65s ease-out;
   }
-  @view-transition {
-    navigation: auto;
-  }
 }
 @media (max-width: 700px) {
   .wrap {
