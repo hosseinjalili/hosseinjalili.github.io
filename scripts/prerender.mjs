@@ -9,7 +9,13 @@ import { renderToString } from "react-dom/server";
 
 const origin = "https://hosseinjalili.com";
 const output = resolve("dist");
-const template = await readFile(join(output, "index.html"), "utf8");
+const shell = await readFile(join(output, "index.html"), "utf8");
+const stylesheet = shell.match(
+  /<link rel="stylesheet" crossorigin href="(\/site-assets\/[^"]+\.css)">/,
+);
+if (!stylesheet) throw new Error("The built page is missing its stylesheet");
+const css = await readFile(join(output, stylesheet[1]), "utf8");
+const template = shell.replace(stylesheet[0], () => `<style>${css}</style>`);
 const escape = (value) =>
   String(value).replace(
     /[&<>"']/g,
