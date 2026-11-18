@@ -9,6 +9,7 @@ import {
 } from "./resume";
 import about from "../_pages/about.md";
 import portrait from "./assets/hossein-portrait.webp?inline";
+import portraitPreview from "./assets/hossein-preview.webp?inline";
 import githubMark from "/media/github-mark.png?inline";
 import { useCurrentMonth } from "./useCurrentMonth";
 import { usePortraitMotion } from "./usePortraitMotion";
@@ -242,7 +243,7 @@ function Home({ posts }) {
             <div className="cinema-media">
               <div className="cinema-linework" aria-hidden="true" />
               <img
-                src={portrait}
+                src={import.meta.env.SSR ? portraitPreview : portrait}
                 className="cinema-photo"
                 alt={t(profile.name, profile.englishName)}
                 width="560"

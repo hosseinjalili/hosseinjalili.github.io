@@ -20,6 +20,10 @@ if (!stylesheet) throw new Error("The built page is missing its stylesheet");
 if (!script) throw new Error("The built page is missing its script");
 const stylesheetPath = join(output, stylesheet[1]);
 const css = await readFile(stylesheetPath, "utf8");
+// Put the embedded fonts after the page markup so a partial response can paint.
+const fontFaces = /@font-face\s*\{[^{}]*\}/g;
+const fontCss = [...css.matchAll(fontFaces)].map(([face]) => face).join("\n");
+const layoutCss = css.replace(fontFaces, "");
 // The prerendered page can finish loading before React's network request.
 const enhancement = `<script>
   addEventListener("DOMContentLoaded", () => {
@@ -27,9 +31,9 @@ const enhancement = `<script>
   }, { once: true });
 </script>`;
 const template = shell
-  .replace(stylesheet[0], () => `<style>${css}</style>`)
+  .replace(stylesheet[0], () => `<style>${layoutCss}</style>`)
   .replace(script[0], "")
-  .replace("</body>", () => `${enhancement}\n</body>`);
+  .replace("</body>", () => `<style>${fontCss}</style>\n${enhancement}\n</body>`);
 const escape = (value) =>
   String(value).replace(
     /[&<>"']/g,
