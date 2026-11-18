@@ -8,9 +8,11 @@ import {
   workDuration,
 } from "./resume";
 import about from "../_pages/about.md";
+import { useCurrentMonth } from "./useCurrentMonth";
+import { usePortraitMotion } from "./usePortraitMotion";
+import { Language, useLanguage, localPath, Link } from "./locale";
 
 const arrow = <i className="arrow" aria-hidden="true" />;
-import { Language, useLanguage, localPath, Link } from "./locale";
 
 const nav = [
   ["/", "خانه", "Home"],
@@ -152,53 +154,116 @@ function Portrait() {
     </figure>
   );
 }
-function Home({ posts }) {
+function HomeCareer() {
   const { lang, t } = useLanguage();
+  const today = useCurrentMonth();
+  const [selected, setSelected] = useState(0);
+  const company = employers[selected];
+  const role =
+    company.positions.find((position) => position.note) ?? company.positions[0];
+
   return (
-    <>
-      <section className="hero wrap">
-        <div className="hero-copy">
-          <p className="eyebrow">
-            <b />
-            {t("توسعه‌دهندهٔ ارشد فول‌استک", "Senior Full Stack Developer")}
+    <section id="career" className="home-career" aria-labelledby="career-title">
+      <div className="section-head">
+        <h2 id="career-title">{t("مسیر کاری", "Career")}</h2>
+        <Link className="textlink" href="/resume/">
+          {t("رزومهٔ کامل", "Full résumé")} {arrow}
+        </Link>
+      </div>
+      <div
+        className="career-companies"
+        role="group"
+        aria-label={t("شرکت‌ها", "Employers")}
+      >
+        {employers.map((item, index) => (
+          <button
+            key={item.website}
+            type="button"
+            aria-controls="career-position"
+            aria-pressed={index === selected}
+            onClick={() => setSelected(index)}
+          >
+            {t(item.shortName, item.name[1])}
+          </button>
+        ))}
+      </div>
+      <div id="career-position" className="career-position" aria-live="polite">
+        <div className="career-detail" key={company.website}>
+          <h3>{t(...role.title)}</h3>
+          <p className="career-tenure">
+            {t("مدت همکاری", "Time at company")} ·{" "}
+            {workDuration(company.positions, lang, today)}
           </p>
-          <h1>
-            {t(profile.givenName, "Hossein")}{" "}
-            <em>
-              {t(profile.familyName, "Jalili HasanKiadeh")}
-              <span aria-hidden="true">.</span>
-            </em>
-          </h1>
-          <p className="intro">
-            {t(
-              "از طراحی رابط تا توسعهٔ نرم‌افزار، به تجربهٔ آدم‌ها فکر می‌کنم. اینجا از کارم و روزمرگی‌هام می‌نویسم.",
-              "I design interfaces and develop software with the people who use them in mind. Here I write about my work and everyday life.",
-            )}
-          </p>
-          <div className="actions">
-            <Link className="button" href="/resume/">
-              {t("رزومهٔ من", "My résumé")} {arrow}
-            </Link>
+          {role.note && <p>{t(...role.note)}</p>}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Home({ posts }) {
+  const { t } = useLanguage();
+  const portraitRef = usePortraitMotion();
+  return (
+    <div className="home-page">
+      <section className="cinematic-hero" aria-labelledby="home-title">
+        <div className="wrap cinema-layout">
+          <div className="cinema-copy">
+            <p className="eyebrow">
+              <b aria-hidden="true" />
+              {t("توسعه‌دهندهٔ ارشد فول‌استک", "Senior Full Stack Developer")}
+            </p>
+            <h1 id="home-title">
+              {t(profile.givenName, "Hossein")}{" "}
+              <span>{t(profile.familyName, "Jalili HasanKiadeh")}</span>
+            </h1>
+            <p className="cinema-intro">
+              {t(
+                "از طراحی رابط تا ساخت نرم‌افزار و ابزارهای هوش مصنوعی.",
+                "From interface design to software engineering and AI tools.",
+              )}
+            </p>
+            <div className="actions">
+              <Link className="button career-jump" href="#career">
+                {t("مسیر کاری", "Explore my work")}
+                <span className="down-arrow" aria-hidden="true">
+                  ↓
+                </span>
+              </Link>
+              <Link className="textlink" href="/posts/">
+                {t("بلاگ شخصی", "Personal journal")} {arrow}
+              </Link>
+            </div>
+          </div>
+          <figure className="cinema-portrait" ref={portraitRef}>
+            <div className="cinema-media">
+              <div className="cinema-linework" aria-hidden="true" />
+              <img
+                src="/media/hossein.webp"
+                className="cinema-photo"
+                alt={t(profile.name, profile.englishName)}
+                width="906"
+                height="920"
+                fetchPriority="high"
+              />
+            </div>
+          </figure>
+        </div>
+      </section>
+      <div className="home-scroll-progress" aria-hidden="true" />
+      <div className="wrap home-chapters">
+        <HomeCareer />
+        <section className="home-journal" aria-labelledby="home-journal-title">
+          <div className="section-head">
+            <h2 id="home-journal-title">{t("روزمرگی‌ها", "Journal")}</h2>
             <Link className="textlink" href="/posts/">
-              {t("بلاگ شخصی", "Personal journal")} {arrow}
+              {t("همهٔ نوشته‌ها", "All entries")} {arrow}
             </Link>
           </div>
-        </div>
-        <Portrait />
-      </section>
-      <section className="journal wrap">
-        <div className="section-head">
-          <h2>
-            {t("روزمرگی‌ها", "Journal")}
-            <span>.</span>
-          </h2>
-          <Link className="textlink" href="/posts/">
-            {t("همهٔ نوشته‌ها", "All entries")} {arrow}
-          </Link>
-        </div>
-        <Cards items={posts.slice(0, 3)} />
-      </section>
-    </>
+          <Cards items={posts.slice(0, 3)} />
+        </section>
+      </div>
+    </div>
   );
 }
 function Archive({ path, posts }) {
@@ -291,7 +356,7 @@ function Article({ post }) {
     </article>
   );
 }
-function ResumeDates({ start, end }) {
+function ResumeDates({ start, end, duration }) {
   const { lang, t } = useLanguage();
   const dateLabel = (value) => {
     const monthKnown = value.length === 7;
@@ -324,12 +389,18 @@ function ResumeDates({ start, end }) {
       ) : (
         t("اکنون", "Present")
       )}
+      {duration && (
+        <span className="role-duration">
+          {" · "}
+          {duration}
+        </span>
+      )}
     </p>
   );
 }
 function Resume() {
   const { lang, t } = useLanguage();
-  const today = new Date();
+  const today = useCurrentMonth();
   const totalExperience = workDuration(
     employers.flatMap((company) => company.positions),
     lang,
@@ -398,7 +469,11 @@ function Resume() {
                 {company.positions.map((role) => (
                   <li key={role.title[1]}>
                     <h3>{t(...role.title)}</h3>
-                    <ResumeDates start={role.start} end={role.end} />
+                    <ResumeDates
+                      start={role.start}
+                      end={role.end}
+                      duration={workDuration([role], lang, today)}
+                    />
                     {role.note && <p>{t(...role.note)}</p>}
                   </li>
                 ))}

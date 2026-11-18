@@ -1,6 +1,7 @@
 export const employers = [
   {
     name: ["رویای سبز نرم‌افزارهای آینده", "FuSoft"],
+    shortName: "فیوسافت",
     website: "https://fusoft-co.com/",
     positions: [
       { title: ["رئیس هیئت‌مدیره", "Chairman of the Board"], start: "2021-04" },
@@ -30,6 +31,7 @@ export const employers = [
   },
   {
     name: ["شرکت کارگزاری نهایت‌نگر", "Nahayatnegar Broker"],
+    shortName: "نهایت‌نگر",
     website: "https://www.nahayatnegar.com/homePage/brokerage",
     positions: [
       {
@@ -48,6 +50,7 @@ export const employers = [
   },
   {
     name: ["شرکت برید سامانه نوین", "Baridsoft"],
+    shortName: "برید سامانه",
     website: "https://baridsoft.net/",
     positions: [
       {

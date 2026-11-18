@@ -6,6 +6,7 @@ import App from "./App";
 import { articleRecords } from "./records";
 import snapshot from "../content/journal.json";
 import "./style.css";
+import "./home.css";
 
 let path;
 try {
@@ -32,6 +33,8 @@ function render(journal) {
   root.render(<App lang={lang} path={path} posts={posts} />);
 }
 
+render(snapshot);
+
 // The CMS commits this public document. Fetch it independently of the JS bundle
 // so publication works with the repository's branch-based Pages settings.
 fetch("/content/journal.json", { cache: "no-cache" })
@@ -40,4 +43,6 @@ fetch("/content/journal.json", { cache: "no-cache" })
     return response.json();
   })
   .then(render)
-  .catch(() => render(snapshot));
+  .catch(() => {
+    // The bundled snapshot keeps navigation and current-date calculations available.
+  });
