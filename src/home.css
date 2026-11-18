@@ -7,7 +7,7 @@
 .cinematic-hero {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow: clip;
   color: var(--cinema-ink);
   background:
     linear-gradient(
