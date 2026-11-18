@@ -594,6 +594,11 @@ function Page({ path, posts }) {
           <Link href={profile.github}>GitHub</Link>
           <Link href={profile.linkedin}>LinkedIn</Link>
           <Link href={"mailto:" + profile.email}>{t("ایمیل", "Email")}</Link>
+          {path === "/posts/" && (
+            <a className="editor-link" href="/write/">
+              {t("ویرایشگر", "Editor")}
+            </a>
+          )}
         </div>
       </footer>
     </>

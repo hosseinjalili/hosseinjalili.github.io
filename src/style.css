@@ -577,6 +577,13 @@ footer {
 footer a {
   font-size: 14px;
 }
+.editor-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--muted);
+  font-size: 13px;
+}
 .footer-name {
   font-size: 22px;
   font-weight: 800;
