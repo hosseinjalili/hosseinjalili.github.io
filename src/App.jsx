@@ -692,7 +692,7 @@ function Page({ path, posts }) {
       </Link>
       <Header path={path} posts={posts} />
       <main id="main">{page}</main>
-      <footer className="wrap">
+      <footer id="site-footer" className="wrap">
         <div className="footer-socials">
           <a href={profile.github} lang="en" dir="ltr">
             <img

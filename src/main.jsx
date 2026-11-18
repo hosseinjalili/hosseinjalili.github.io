@@ -14,6 +14,7 @@ try {
 } catch {
   path = "/404.html";
 }
+path = path.replace(/\/index\.html$/, "/");
 if (!path.endsWith("/") && !path.endsWith(".html")) path += "/";
 const lang = path.startsWith("/en/") ? "en" : "fa";
 if (lang === "en") path = path.slice(3);
