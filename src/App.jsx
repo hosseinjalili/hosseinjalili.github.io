@@ -343,7 +343,7 @@ function Article({ post }) {
         <em>.</em>
       </h1>
       <time dateTime={post.date}>{formatDate(post.date, lang)}</time>
-      <Art slug={post.slug} cover={post.cover} featured />
+      {!post.coverInBody && <Art slug={post.slug} cover={post.cover} featured />}
       <div
         className="prose"
         lang={post.language}

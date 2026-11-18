@@ -41,7 +41,7 @@ content:
           - name: cover
             label: تصویر جلد (اختیاری)
             type: image
-            description: عکس را انتخاب یا بارگذاری کنید تا در فهرست بلاگ و بالای همین نوشته در هر دو زبان نمایش داده شود.
+            description: عکس جلد را انتخاب یا بارگذاری کنید. اگر خالی باشد، اولین عکس بارگذاری‌شده در متن برای فهرست بلاگ استفاده می‌شود.
             options:
               extensions: [jpg, jpeg, png, webp, avif]
               rename: safe

@@ -1,5 +1,17 @@
 const legacyArticles = new Set(["Yonus88", "Swallow", "Hope"]);
 
+function uploadPath(value) {
+  const path = typeof value === "string" ? value.trim() : "";
+  return path.startsWith("/media/uploads/") ? path : "";
+}
+
+function uploadedImages(html) {
+  // Match the src attribute of images in the already-sanitized article HTML.
+  return Array.from(html.matchAll(/<img\b[^>]*?\ssrc="([^"]+)"/gi), ([, src]) =>
+    uploadPath(src.replace(/&amp;/g, "&")),
+  ).filter(Boolean);
+}
+
 export function articleRecords(journal, renderMarkdown, lang = "fa") {
   return journal.posts
     .map((post) => {
@@ -7,18 +19,29 @@ export function articleRecords(journal, renderMarkdown, lang = "fa") {
       const url = legacy
         ? "/life/" + post.slug + "/"
         : "/posts/?article=" + encodeURIComponent(post.id);
-      const translated = lang === "en" && post.englishTitle && post.englishBody;
+      const hasTranslation = post.englishTitle && post.englishBody;
+      const translated = lang === "en" && hasTranslation;
       const body = translated ? post.englishBody : post.body;
-      const cover = typeof post.cover === "string" ? post.cover.trim() : "";
+      const html = renderMarkdown(body);
+      const images = uploadedImages(html);
+      const cover =
+        uploadPath(post.cover) ||
+        (translated
+          ? uploadedImages(renderMarkdown(post.body))[0] || images[0]
+          : images[0] ||
+            (hasTranslation &&
+              uploadedImages(renderMarkdown(post.englishBody))[0])) ||
+        "";
       return {
         ...post,
-        cover: cover.startsWith("/media/uploads/") ? cover : "",
+        cover,
+        coverInBody: images.includes(cover),
         url,
         title: translated ? post.englishTitle : post.title,
         language: translated ? "en" : "fa",
         tags: post.tags || [],
         categories: post.categories || [],
-        html: renderMarkdown(body),
+        html,
         excerpt: body.trim().split(/\n\s*\n/)[0],
       };
     })
