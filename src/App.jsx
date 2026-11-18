@@ -80,7 +80,19 @@ function Header({ path, posts }) {
     </header>
   );
 }
-function Art({ slug }) {
+function Art({ slug, cover, featured = false }) {
+  if (cover) {
+    return (
+      <div className="art art-cover">
+        <img
+          src={cover}
+          alt=""
+          loading={featured ? "eager" : "lazy"}
+          decoding="async"
+        />
+      </div>
+    );
+  }
   return (
     <div
       aria-hidden="true"
@@ -101,7 +113,7 @@ function Cards({ items }) {
     <div className="cards">
       {items.map((p) => (
         <Link className="card" key={p.url} href={p.url}>
-          <Art slug={p.slug} />
+          <Art slug={p.slug} cover={p.cover} />
           <time dateTime={p.date}>{formatDate(p.date, lang)}</time>
           <div className="card-title">
             <h3 lang={p.language} dir="auto">
@@ -260,7 +272,7 @@ function Article({ post }) {
         <em>.</em>
       </h1>
       <time dateTime={post.date}>{formatDate(post.date, lang)}</time>
-      <Art slug={post.slug} />
+      <Art slug={post.slug} cover={post.cover} featured />
       <div
         className="prose"
         lang={post.language}
@@ -275,14 +287,29 @@ function Article({ post }) {
 }
 function ResumeDates({ start, end }) {
   const { lang, t } = useLanguage();
-  const dateLabel = (value) =>
-    new Intl.DateTimeFormat(lang === "fa" ? "fa-IR-u-ca-gregory" : "en", {
-      year: "numeric",
-      month: value.length === 7 ? "long" : undefined,
-      timeZone: "UTC",
-    }).format(
-      new Date(value + (value.length === 4 ? "-01-01" : "-01") + "T12:00:00Z"),
+  const dateLabel = (value) => {
+    const monthKnown = value.length === 7;
+    const formatter = new Intl.DateTimeFormat(
+      lang === "fa" ? "fa-IR-u-ca-persian" : "en",
+      {
+        year: "numeric",
+        month: monthKnown ? "long" : undefined,
+        timeZone: "UTC",
+      },
     );
+    // LinkedIn dates have month or year precision, so use the midpoint of the period.
+    const midpoint = monthKnown ? value + "-15" : value + "-07-01";
+    const date = new Date(midpoint + "T12:00:00Z");
+    if (lang === "fa" && monthKnown) {
+      const parts = formatter.formatToParts(date);
+      return (
+        parts.find((part) => part.type === "month").value +
+        " " +
+        parts.find((part) => part.type === "year").value
+      );
+    }
+    return formatter.format(date);
+  };
   return (
     <p className="resume-dates">
       <time dateTime={start}>{dateLabel(start)}</time> {t("تا", "–")}{" "}
@@ -419,9 +446,34 @@ function Resume() {
           {recommendations.map((rec) => (
             <figure key={rec.url} className="recommendation">
               <figcaption>
-                <a href={rec.url} lang="en" dir="ltr">
-                  {rec.name}
-                </a>
+                <img
+                  className="recommendation-photo"
+                  src={rec.photo}
+                  alt=""
+                  width="56"
+                  height="56"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="recommendation-profile">
+                  <a
+                    href={rec.url}
+                    aria-label={t(
+                      rec.persianName + " در لینکدین",
+                      rec.name + " on LinkedIn",
+                    )}
+                  >
+                    <span
+                      className="linkedin-mark"
+                      aria-hidden="true"
+                      dir="ltr"
+                    >
+                      in
+                    </span>
+                    {t(rec.persianName, rec.name)}
+                  </a>
+                  <p>{t(...rec.role)}</p>
+                </div>
                 {lang === "fa" && rec.translated && (
                   <small>ترجمه از انگلیسی</small>
                 )}

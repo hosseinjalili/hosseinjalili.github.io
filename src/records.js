@@ -9,8 +9,10 @@ export function articleRecords(journal, renderMarkdown, lang = "fa") {
         : "/posts/?article=" + encodeURIComponent(post.id);
       const translated = lang === "en" && post.englishTitle && post.englishBody;
       const body = translated ? post.englishBody : post.body;
+      const cover = typeof post.cover === "string" ? post.cover.trim() : "";
       return {
         ...post,
+        cover: cover.startsWith("/media/uploads/") ? cover : "",
         url,
         title: translated ? post.englishTitle : post.title,
         language: translated ? "en" : "fa",

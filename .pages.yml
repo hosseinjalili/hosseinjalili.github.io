@@ -23,7 +23,7 @@ content:
             type: string
             hidden: true
           - name: title
-            label: عنوان
+            label: عنوان فارسی
             type: string
             required: true
           - name: date
@@ -33,9 +33,16 @@ content:
             options:
               format: yyyy-MM-dd
           - name: body
-            label: متن نوشته
+            label: متن فارسی
             type: rich-text
             required: true
+          - name: cover
+            label: تصویر جلد (اختیاری)
+            type: image
+            description: عکس را انتخاب یا بارگذاری کنید تا در فهرست بلاگ و بالای همین نوشته در هر دو زبان نمایش داده شود.
+            options:
+              extensions: [jpg, jpeg, png, webp, avif]
+              rename: safe
           - name: categories
             label: دسته‌بندی
             type: string
@@ -46,8 +53,10 @@ content:
             type: string
             list: true
           - name: englishTitle
-            label: عنوان انگلیسی
+            label: عنوان انگلیسی (اختیاری)
+            description: برای نسخهٔ انگلیسی، عنوان و متن انگلیسی را هر دو وارد کنید.
             type: string
           - name: englishBody
-            label: متن انگلیسی
+            label: متن انگلیسی (اختیاری)
+            description: متن انگلیسی را اینجا بنویسید یا بچسبانید. در صورت خالی بودن، متن فارسی نمایش داده می‌شود.
             type: rich-text
