@@ -28,17 +28,27 @@ const server = await createServer({
 });
 try {
   const { default: App } = await server.ssrLoadModule("/src/App.jsx");
-  const { routes, metadata, profile } = await server.ssrLoadModule("/src/content.js");
+  const { routes, metadata, profile } =
+    await server.ssrLoadModule("/src/content.js");
   const journal = JSON.parse(await readFile("content/journal.json", "utf8"));
-  const posts = articleRecords(journal, (body) =>
+  const renderBody = (body) =>
     sanitize(marked.parse(body), {
       allowedTags: [...sanitize.defaults.allowedTags, "img", "del"],
-    }),
-  );
+    });
+  const posts = articleRecords(journal, renderBody);
   await cp("content", join(output, "content"), { recursive: true });
-  for (const path of routes) {
-    const { title, description } = metadata(path, posts);
-    const url = escape(new URL(path, origin).href);
+  const pages = ["fa", "en"].flatMap((lang) =>
+    routes.map((path) => ({
+      lang,
+      path,
+      urlPath: (lang === "en" ? "/en" : "") + path,
+    })),
+  );
+  for (const { path, lang, urlPath } of pages) {
+    const localPosts =
+      lang === "en" ? articleRecords(journal, renderBody, lang) : posts;
+    const { title, description } = metadata(path, localPosts, lang);
+    const url = escape(new URL(urlPath, origin).href);
     const meta = [
       "<title>" + escape(title) + "</title>",
       '<meta name="description" content="' + escape(description) + '">',
@@ -47,20 +57,27 @@ try {
       '<meta property="og:image" content="' + origin + '/media/hossein.webp">',
       '<link rel="canonical" href="' + url + '">',
     ].join("\n");
-    const file = join(output, path, path.endsWith("/") ? "index.html" : "");
+    const file = join(output, urlPath, path.endsWith("/") ? "index.html" : "");
     if (!file.startsWith(output + "/"))
       throw new Error("Invalid route: " + path);
     await mkdir(dirname(file), { recursive: true });
-    const content = renderToString(createElement(App, { path, posts }));
+    const content = renderToString(
+      createElement(App, { path, posts: localPosts, lang }),
+    );
     await writeFile(
       file,
       template
+        .replace(
+          'lang="fa" dir="rtl"',
+          lang === "en" ? 'lang="en" dir="ltr"' : 'lang="fa" dir="rtl"',
+        )
         .replace("<!--page-meta-->", () => meta)
         .replace("<!--page-content-->", () => content),
     );
   }
-  const sitemap = routes
-    .filter((p) => !["/404.html", "/admin/"].includes(p))
+  const sitemap = pages
+    .filter((p) => p.path !== "/404.html")
+    .map((p) => p.urlPath)
     .map((p) => "<url><loc>" + escape(new URL(p, origin).href) + "</loc></url>")
     .join("");
   await writeFile(
@@ -87,7 +104,9 @@ try {
   });
   await writeFile(
     join(output, "feed.xml"),
-    '<feed xmlns="http://www.w3.org/2005/Atom"><title>روزمرگی‌ها</title><author><name>' + escape(profile.name) + '</name></author><id>' +
+    '<feed xmlns="http://www.w3.org/2005/Atom"><title>روزمرگی‌ها</title><author><name>' +
+      escape(profile.name) +
+      "</name></author><id>" +
       origin +
       '/</id><link rel="self" href="' +
       origin +

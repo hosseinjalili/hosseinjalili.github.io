@@ -14,16 +14,22 @@ try {
   path = "/404.html";
 }
 if (!path.endsWith("/") && !path.endsWith(".html")) path += "/";
+const lang = path.startsWith("/en/") ? "en" : "fa";
+if (lang === "en") path = path.slice(3);
+document.documentElement.lang = lang;
+document.documentElement.dir = lang === "en" ? "ltr" : "rtl";
 const article = new URLSearchParams(location.search).get("article");
 if (path === "/posts/" && article)
   path += "?article=" + encodeURIComponent(article);
 
 const root = createRoot(document.getElementById("root"));
 function render(journal) {
-  const posts = articleRecords(journal, (body) =>
-    DOMPurify.sanitize(marked.parse(body)),
+  const posts = articleRecords(
+    journal,
+    (body) => DOMPurify.sanitize(marked.parse(body)),
+    lang,
   );
-  root.render(<App path={path} posts={posts} />);
+  root.render(<App lang={lang} path={path} posts={posts} />);
 }
 
 // The CMS commits this public document. Fetch it independently of the JS bundle

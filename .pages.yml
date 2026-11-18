@@ -45,3 +45,9 @@ content:
             label: برچسب‌ها
             type: string
             list: true
+          - name: englishTitle
+            label: عنوان انگلیسی
+            type: string
+          - name: englishBody
+            label: متن انگلیسی
+            type: rich-text
