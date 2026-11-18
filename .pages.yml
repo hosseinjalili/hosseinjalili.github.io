@@ -1,0 +1,47 @@
+media:
+  input: media/uploads
+  output: /media/uploads
+content:
+  - name: posts
+    label: نوشته‌ها
+    type: file
+    path: content/journal.json
+    format: json
+    fields:
+      - name: posts
+        label: نوشته‌ها
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{fields.title}"
+        fields:
+          - name: id
+            type: uuid
+            hidden: true
+          - name: slug
+            type: string
+            hidden: true
+          - name: title
+            label: عنوان
+            type: string
+            required: true
+          - name: date
+            label: تاریخ نوشته
+            type: date
+            required: true
+            options:
+              format: yyyy-MM-dd
+          - name: body
+            label: متن نوشته
+            type: rich-text
+            required: true
+          - name: categories
+            label: دسته‌بندی
+            type: string
+            list: true
+            default: [life]
+          - name: tags
+            label: برچسب‌ها
+            type: string
+            list: true
