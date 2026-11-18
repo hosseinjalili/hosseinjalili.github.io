@@ -101,7 +101,6 @@ button {
   display: inline-block;
 }
 .brand span,
-.footer-name span,
 .section-head h2 span,
 .inner h1 em {
   color: var(--accent);
@@ -110,7 +109,7 @@ nav,
 .actions,
 .archive-tools,
 .profile-links,
-footer div {
+.footer-socials {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -559,16 +558,41 @@ footer {
 footer a {
   font-size: 14px;
 }
-.editor-link {
+.footer-socials a {
   display: inline-flex;
   align-items: center;
+  gap: 0.42rem;
   min-height: 44px;
-  color: var(--muted);
-  font-size: 13px;
 }
-.footer-name {
-  font-size: 22px;
-  font-weight: 800;
+:root[data-theme="dark"] .github-mark {
+  filter: invert(1);
+}
+.editor-link {
+  display: grid;
+  place-items: center;
+  margin-inline-start: auto;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+}
+.editor-link:hover {
+  background: var(--stone);
+  color: var(--accent);
+}
+.editor-pencil {
+  display: block;
+  width: 17px;
+  height: 6px;
+  clip-path: polygon(0 50%, 22% 0, 100% 0, 100% 100%, 22% 100%);
+  background: linear-gradient(
+    90deg,
+    currentColor 72%,
+    transparent 72% 80%,
+    currentColor 80%
+  );
+  transform: rotate(-45deg);
 }
 footer a:hover,
 .archive-tools a:hover {
@@ -670,7 +694,7 @@ footer a:hover,
   footer {
     padding-block: 20px;
   }
-  footer div {
+  .footer-socials {
     gap: 14px;
   }
   .about .poster {

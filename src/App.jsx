@@ -693,20 +693,34 @@ function Page({ path, posts }) {
       <Header path={path} posts={posts} />
       <main id="main">{page}</main>
       <footer className="wrap">
-        <Link className="footer-name" href="/">
-          {t(profile.name, profile.englishName)}
-          <span>.</span>
-        </Link>
-        <div>
-          <Link href={profile.github}>GitHub</Link>
-          <Link href={profile.linkedin}>LinkedIn</Link>
-          <Link href={"mailto:" + profile.email}>{t("ایمیل", "Email")}</Link>
-          {path === "/posts/" && (
-            <a className="editor-link" href="/write/">
-              {t("ویرایشگر", "Editor")}
-            </a>
-          )}
+        <div className="footer-socials">
+          <a href={profile.github} lang="en" dir="ltr">
+            <img
+              className="github-mark"
+              src="/media/github-mark.png"
+              width="19"
+              height="19"
+              alt=""
+            />
+            GitHub
+          </a>
+          <a href={profile.linkedin} lang="en" dir="ltr">
+            <span className="linkedin-mark" aria-hidden="true">
+              in
+            </span>
+            LinkedIn
+          </a>
         </div>
+        {path === "/posts/" && (
+          <a
+            className="editor-link"
+            href="/write/"
+            aria-label={t("ویرایشگر بلاگ", "Blog editor")}
+            title={t("ویرایشگر بلاگ", "Blog editor")}
+          >
+            <span className="editor-pencil" aria-hidden="true" />
+          </a>
+        )}
       </footer>
     </>
   );
