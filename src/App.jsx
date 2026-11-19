@@ -9,6 +9,7 @@ import {
 } from "./resume";
 import about from "../_pages/about.md";
 import portraitPreview from "./assets/hossein-preview.webp?inline";
+import { Media, MediaImage, useArticleHtml } from "./media";
 import githubMark from "/media/github-mark.png?inline";
 import { useCurrentMonth } from "./useCurrentMonth";
 import { usePortraitMotion } from "./usePortraitMotion";
@@ -94,7 +95,7 @@ function Art({ slug, cover, featured = false }) {
   if (cover) {
     return (
       <div className="art art-cover">
-        <img
+        <MediaImage
           src={cover}
           alt=""
           loading={featured ? "eager" : "lazy"}
@@ -143,14 +144,12 @@ function Portrait() {
     <figure className="poster">
       <div className="poster-grid" aria-hidden="true" />
       <div className="portrait-arch" aria-hidden="true" />
-      <div className="photo">
-        <img
-          src="/media/hossein.webp"
-          width="906"
-          height="920"
-          alt={t(profile.name + " در طبیعت", profile.englishName + " outdoors")}
-        />
-      </div>
+      <div
+        className="photo"
+        role="img"
+        aria-label={t(profile.name + " در طبیعت", profile.englishName + " outdoors")}
+        style={{ "--portrait-preview": `url(${portraitPreview})` }}
+      />
       <figcaption dir="ltr" lang="en">
         {profile.englishName}
       </figcaption>
@@ -334,6 +333,7 @@ function Archive({ path, posts }) {
 }
 function Article({ post }) {
   const { lang, t } = useLanguage();
+  const html = useArticleHtml(post.html);
   return (
     <article className="wrap inner reading">
       <Link className="textlink" href="/posts/">
@@ -349,7 +349,7 @@ function Article({ post }) {
         className="prose"
         lang={post.language}
         dir={post.language === "fa" ? "rtl" : "ltr"}
-        dangerouslySetInnerHTML={{ __html: post.html }}
+        dangerouslySetInnerHTML={{ __html: html }}
       />
       <Link className="textlink" href="/posts/">
         {t("همهٔ نوشته‌ها", "All entries")} {arrow}
@@ -554,7 +554,7 @@ function Resume() {
           {recommendations.map((rec) => (
             <figure key={rec.url} className="recommendation">
               <figcaption>
-                <img
+                <MediaImage
                   className="recommendation-photo"
                   src={rec.photo}
                   alt=""
@@ -647,10 +647,12 @@ function About() {
     </section>
   );
 }
-export default function App({ path, posts, lang = "fa" }) {
+export default function App({ path, posts, lang = "fa", media = null }) {
   return (
     <Language.Provider value={lang}>
-      <Page path={path} posts={posts} />
+      <Media.Provider value={media}>
+        <Page path={path} posts={posts} />
+      </Media.Provider>
     </Language.Provider>
   );
 }

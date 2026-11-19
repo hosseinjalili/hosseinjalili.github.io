@@ -136,7 +136,7 @@
   display: block;
   width: 88%;
   height: 87%;
-  background-image: url("/media/hossein.webp"), var(--portrait-preview);
+  background-image: var(--portrait, none), var(--portrait-preview);
   background-position: center 11%;
   background-repeat: no-repeat;
   background-size: cover;

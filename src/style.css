@@ -1,25 +1,4 @@
 @import "@fontsource-variable/vazirmatn";
-/* The letters commonly used on the site are included in the page styles. */
-@font-face {
-  font-family: "Vazirmatn Variable";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("./assets/vazirmatn-latin.woff2?inline") format("woff2");
-  unicode-range:
-    U+0020-007E, U+00A0, U+00AB, U+00B7, U+00BB, U+00C9, U+00E9, U+2000-206F;
-}
-@font-face {
-  font-family: "Vazirmatn Variable";
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url("./assets/vazirmatn-persian.woff2?inline") format("woff2");
-  unicode-range:
-    U+0600-060F, U+061B-061F, U+0621-063A, U+0640-066D, U+0670-0671, U+067E,
-    U+0686, U+0698, U+06A9, U+06AF, U+06BE, U+06C0-06C2, U+06CC, U+06D2-06D3,
-    U+06F0-06F9, U+200C-200F;
-}
 :root {
   --paper: #f5f1e9;
   --ink: #282421;
@@ -302,15 +281,12 @@ a:hover .arrow {
   border-radius: 50% 50% 0 0 / 38% 38% 0 0;
   overflow: hidden;
   border: 1px solid var(--line);
-  background: var(--frame);
   box-shadow: 0 14px 32px #281d1230;
-}
-.photo img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 27%;
+  background-color: var(--frame);
+  background-image: var(--portrait, none), var(--portrait-preview);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center 27%;
   filter: grayscale(0.85) sepia(0.22);
 }
 .poster figcaption {

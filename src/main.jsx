@@ -1,19 +1,38 @@
 import React from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
 import App from "./App";
 import { routes } from "./content";
-import { articleRecords } from "./records";
-import snapshot from "../content/journal.json";
 import "./style.css";
 import "./home.css";
 
 const root = createRoot(document.getElementById("root"));
-const publishedIds = new Set(snapshot.posts.map((post) => post.id));
-const recordsByLanguage = new Map();
-let journal = snapshot;
+const embedded = document.getElementById("site-data");
+const site = embedded && JSON.parse(embedded.textContent);
+const media = site?.media ?? null;
+const recordsByLanguage = new Map(Object.entries(site?.posts ?? {}));
+if (media) {
+  for (const image of document.querySelectorAll("img[data-site-media]")) {
+    media[decodeURIComponent(image.dataset.siteMedia)] = image.getAttribute("src");
+  }
+}
+if (import.meta.env.DEV) {
+  document.documentElement.style.setProperty("--portrait", 'url("/media/hossein.webp")');
+  Promise.all([
+    import("marked"),
+    import("dompurify"),
+    import("./records"),
+    import("../content/journal.json"),
+  ]).then(([{ marked }, { default: DOMPurify }, { articleRecords }, { default: journal }]) => {
+    for (const lang of ["fa", "en"]) {
+      recordsByLanguage.set(
+        lang,
+        articleRecords(journal, (body) => DOMPurify.sanitize(marked.parse(body)), lang),
+      );
+    }
+    render();
+  });
+}
 
 function readPage(url) {
   let path;
@@ -27,18 +46,7 @@ function readPage(url) {
   const lang = path.startsWith("/en/") ? "en" : "fa";
   if (lang === "en") path = path.slice(3);
 
-  if (!recordsByLanguage.has(lang)) {
-    recordsByLanguage.set(
-      lang,
-      articleRecords(
-        journal,
-        (body) => DOMPurify.sanitize(marked.parse(body)),
-        lang,
-        publishedIds,
-      ),
-    );
-  }
-  const posts = recordsByLanguage.get(lang);
+  const posts = recordsByLanguage.get(lang) ?? [];
   const articleId = url.searchParams.get("article");
   if (path === "/posts/" && articleId) {
     const match = posts.find((post) => post.id === articleId);
@@ -50,7 +58,7 @@ function readPage(url) {
 function render(page = readPage(new URL(location.href))) {
   document.documentElement.lang = page.lang;
   document.documentElement.dir = page.lang === "en" ? "ltr" : "rtl";
-  root.render(<App {...page} />);
+  root.render(<App {...page} media={media} />);
 }
 
 render();
@@ -86,19 +94,3 @@ document.addEventListener("click", (event) => {
 });
 
 window.addEventListener("popstate", () => flushSync(() => render()));
-
-// The CMS commits this public document. Fetch it independently of the JS bundle
-// so publication works with the repository's branch-based Pages settings.
-fetch("/content/journal.json", { cache: "no-cache" })
-  .then((response) => {
-    if (!response.ok) throw new Error("Journal unavailable");
-    return response.json();
-  })
-  .then((freshJournal) => {
-    journal = freshJournal;
-    recordsByLanguage.clear();
-    render();
-  })
-  .catch(() => {
-    // The bundled snapshot keeps navigation and current-date calculations available.
-  });

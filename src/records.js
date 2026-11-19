@@ -41,7 +41,9 @@ export function articleRecords(
               uploadedImages(renderMarkdown(post.englishBody))[0])) ||
         "";
       return {
-        ...post,
+        id: post.id,
+        slug: post.slug,
+        date: post.date,
         cover,
         coverInBody: images.includes(cover),
         url,

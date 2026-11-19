@@ -1,8 +1,9 @@
 import { readFile, writeFile, mkdir, cp, readdir, unlink } from "node:fs/promises";
-import { join, dirname, resolve } from "node:path";
+import { join, dirname, extname, posix, resolve } from "node:path";
 import { createServer } from "vite";
 import { marked } from "marked";
 import sanitize from "sanitize-html";
+import sharp from "sharp";
 import { articleRecords } from "../src/records.js";
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
@@ -21,21 +22,24 @@ if (!script) throw new Error("The built page is missing its script");
 const stylesheetPath = join(output, stylesheet[1]);
 const css = await readFile(stylesheetPath, "utf8");
 const fontFaces = /@font-face\s*\{[^{}]*\}/g;
-const fonts = [...css.matchAll(fontFaces)].map(([face]) => face);
-// Inner pages reuse the local fonts without carrying them in every document.
-const linkedFontCss = fonts.filter((face) => !face.includes("data:")).join("\n");
-const inlineFontCss = fonts.join("\n");
+let fontCss = [...css.matchAll(fontFaces)].map(([face]) => face).join("\n");
+const fontFiles = [...new Set(
+  Array.from(fontCss.matchAll(/\/site-assets\/[\w-]+\.woff2/g), ([file]) => file),
+)];
+const dataUrl = (type, bytes) => `data:${type};base64,${bytes.toString("base64")}`;
+for (const file of fontFiles) {
+  fontCss = fontCss.replaceAll(file, dataUrl("font/woff2", await readFile(join(output, file))));
+}
 const layoutCss = css.replace(fontFaces, "");
-// The prerendered page can finish loading before React's network request.
-const enhancement = `<script>
-  addEventListener("DOMContentLoaded", () => {
-    import(${JSON.stringify(script[1])}).catch(console.error);
-  }, { once: true });
-</script>`;
+const scriptPath = join(output, script[1]);
+const javascript = (await readFile(scriptPath, "utf8")).replace(/<\/script/gi, "<\\/script");
+const icon = dataUrl("image/svg+xml", await readFile("public/favicon.svg"));
+const portrait = dataUrl("image/webp", await readFile("public/media/hossein.webp"));
 const template = shell
+  .replace('href="/favicon.svg"', () => `href="${icon}"`)
   .replace(stylesheet[0], () => `<style>${layoutCss}</style>`)
   .replace(script[0], "")
-  .replace("</body>", () => `<!--page-fonts-->\n${enhancement}\n</body>`);
+  .replace("</body>", () => "<!--embedded-site-->\n</body>");
 const escape = (value) =>
   String(value).replace(
     /[&<>"']/g,
@@ -52,17 +56,71 @@ const server = await createServer({
   server: { middlewareMode: true, hmr: false },
   appType: "custom",
 });
+const imageTypes = {
+  ".avif": "image/avif", ".gif": "image/gif", ".jpeg": "image/jpeg",
+  ".jpg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml",
+  ".webp": "image/webp",
+};
+
+async function encodeImage(key) {
+  const type = imageTypes[extname(key).toLowerCase()];
+  if (!type || posix.normalize(key) !== key) return null;
+  const uploaded = key.startsWith("/media/uploads/");
+  const bundled = key.startsWith("/media/recommendations/");
+  const legacy = key.startsWith("/assets/images/");
+  if (!uploaded && !bundled && !legacy) return null;
+  const file = bundled ? "public" + key : key.slice(1);
+  let bytes;
+  try {
+    bytes = await readFile(file);
+  } catch (error) {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  }
+  if (uploaded && bytes.length > 200_000 && [".jpg", ".jpeg", ".png", ".webp", ".avif"].includes(extname(key).toLowerCase())) {
+    const image = sharp(bytes);
+    const { pages = 1 } = await image.metadata();
+    if (pages === 1) {
+      const smaller = await image
+        .autoOrient()
+        .resize({ width: 1200, height: 1200, fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer();
+      if (smaller.length < bytes.length) return dataUrl("image/webp", smaller);
+    }
+  }
+  return dataUrl(type, bytes);
+}
 try {
   const { default: App } = await server.ssrLoadModule("/src/App.jsx");
   const { routes, metadata, profile } =
     await server.ssrLoadModule("/src/content.js");
+  const { recommendations } = await server.ssrLoadModule("/src/resume.js");
+  const { mediaId, mediaKey } = await server.ssrLoadModule("/src/media.jsx");
   const journal = JSON.parse(await readFile("content/journal.json", "utf8"));
   const renderBody = (body) =>
     sanitize(marked.parse(body), {
       allowedTags: [...sanitize.defaults.allowedTags, "img", "del"],
+      allowedAttributes: {
+        ...sanitize.defaults.allowedAttributes,
+        img: ["src", "alt", "title", "height", "width", "loading"],
+      },
     });
   const posts = articleRecords(journal, renderBody);
+  const postsByLanguage = { fa: posts, en: articleRecords(journal, renderBody, "en") };
+  const sources = new Set(recommendations.map((recommendation) => recommendation.photo));
+  for (const post of [...posts, ...postsByLanguage.en]) {
+    if (post.cover) sources.add(post.cover);
+    for (const [, src] of post.html.matchAll(/<img\b[^>]*?\ssrc="([^"]+)"/gi)) sources.add(src);
+  }
+  const mediaEntries = await Promise.all(
+    [...new Set(Array.from(sources, mediaKey).filter(Boolean))].map(async (key) =>
+      [key, await encodeImage(key)],
+    ),
+  );
+  const media = Object.fromEntries(mediaEntries.filter(([, encoded]) => encoded));
   await cp("content", join(output, "content"), { recursive: true });
+  await cp("media/uploads", join(output, "media/uploads"), { recursive: true });
   const paths = [...new Set([...routes, ...posts.map((post) => post.url)])]
     .filter((path) => !path.includes("?"));
   const pages = ["fa", "en"].flatMap((lang) =>
@@ -73,8 +131,7 @@ try {
     })),
   );
   for (const { path, lang, urlPath } of pages) {
-    const localPosts =
-      lang === "en" ? articleRecords(journal, renderBody, lang) : posts;
+    const localPosts = postsByLanguage[lang];
     const { title, description } = metadata(path, localPosts, lang);
     const url = escape(new URL(urlPath, origin).href);
     const meta = [
@@ -90,8 +147,13 @@ try {
       throw new Error("Invalid route: " + path);
     await mkdir(dirname(file), { recursive: true });
     const content = renderToString(
-      createElement(App, { path, posts: localPosts, lang }),
+      createElement(App, { path, posts: localPosts, lang, media }),
     );
+    // Images already present in the prerendered page are reused by React.
+    const otherMedia = Object.fromEntries(Object.entries(media).filter(
+      ([key]) => !content.includes(`data-site-media="${mediaId(key)}"`),
+    ));
+    const siteData = JSON.stringify({ posts: postsByLanguage, media: otherMedia }).replaceAll("<", "\\u003c");
     await writeFile(
       file,
       template
@@ -101,8 +163,10 @@ try {
         )
         .replace("<!--page-meta-->", () => meta)
         .replace("<!--page-content-->", () => content)
-        .replace("<!--page-fonts-->", () =>
-          `<style>${path === "/" ? inlineFontCss : linkedFontCss}</style>`,
+        .replace("<!--embedded-site-->", () =>
+          `<style>:root{--portrait:url(${portrait})}\n${fontCss}</style>\n` +
+          `<script type="application/json" id="site-data">${siteData}</script>\n` +
+          `<script type="module">${javascript}</script>`,
         ),
     );
   }
@@ -147,11 +211,12 @@ try {
       entries.join("") +
       "</feed>",
   );
-  // This Pages site serves master directly. Only copy the public build output.
-  await unlink(stylesheetPath);
-  for (const name of await readdir(output)) {
-    if (name !== "content")
-      await cp(join(output, name), resolve(name), { recursive: true });
+  await Promise.all([stylesheetPath, scriptPath, ...fontFiles.map((file) => join(output, file))].map(unlink));
+  if (process.argv.includes("--copy-to-root")) {
+    for (const name of await readdir(output)) {
+      if (name !== "content" && name !== "media")
+        await cp(join(output, name), resolve(name), { recursive: true });
+    }
   }
 } finally {
   await server.close();
