@@ -30,11 +30,38 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
+      actions: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Wait for the branch-based Pages build when enabled
+        timeout-minutes: 9
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          repo="repos/$GITHUB_REPOSITORY"
+          if [[ $(gh api "$repo/pages" --jq '.build_type') != legacy ]]; then
+            exit 0
+          fi
+          legacy_id=$(gh api "$repo/actions/workflows" --jq '
+            [.workflows[] | select(.path == "dynamic/pages/pages-build-deployment" and .state == "active")][0].id // empty
+          ')
+          if [[ -z "$legacy_id" ]]; then
+            exit 0
+          fi
+          # Publish the bundled artifact after GitHub finishes serving the branch.
+          for attempt in $(seq 1 90); do
+            status=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$legacy_id" --commit "$GITHUB_SHA" --limit 1 --json status --jq '.[0].status // ""')
+            if [[ "$status" == completed || ( -z "$status" && "$attempt" -ge 6 ) ]]; then
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::The branch-based Pages build is still running."
+          exit 1
       - uses: actions/deploy-pages@v4
         id: deployment

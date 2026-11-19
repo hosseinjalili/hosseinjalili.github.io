@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir, cp, readdir, unlink } from "node:fs/promises";
+import { readFile, writeFile, mkdir, cp, unlink } from "node:fs/promises";
 import { join, dirname, extname, posix, resolve } from "node:path";
 import { createServer } from "vite";
 import { marked } from "marked";
@@ -35,7 +35,9 @@ const scriptPath = join(output, script[1]);
 const javascript = (await readFile(scriptPath, "utf8")).replace(/<\/script/gi, "<\\/script");
 const icon = dataUrl("image/svg+xml", await readFile("public/favicon.svg"));
 const portrait = dataUrl("image/webp", await readFile("public/media/hossein.webp"));
+const policy = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'";
 const template = shell
+  .replace("<head>", () => `<head>\n    <meta http-equiv="Content-Security-Policy" content="${policy}">`)
   .replace('href="/favicon.svg"', () => `href="${icon}"`)
   .replace(stylesheet[0], () => `<style>${layoutCss}</style>`)
   .replace(script[0], "")
@@ -162,7 +164,7 @@ try {
           lang === "en" ? 'lang="en" dir="ltr"' : 'lang="fa" dir="rtl"',
         )
         .replace("<!--page-meta-->", () => meta)
-        .replace("<!--page-content-->", () => content)
+        .replace("<!--page-content-->", () => `<!--email_off-->${content}<!--/email_off-->`)
         .replace("<!--embedded-site-->", () =>
           `<style>:root{--portrait:url(${portrait})}\n${fontCss}</style>\n` +
           `<script type="application/json" id="site-data">${siteData}</script>\n` +
@@ -212,12 +214,8 @@ try {
       "</feed>",
   );
   await Promise.all([stylesheetPath, scriptPath, ...fontFiles.map((file) => join(output, file))].map(unlink));
-  if (process.argv.includes("--copy-to-root")) {
-    for (const name of await readdir(output)) {
-      if (name !== "content" && name !== "media")
-        await cp(join(output, name), resolve(name), { recursive: true });
-    }
-  }
+  await mkdir(join(output, "licenses"), { recursive: true });
+  await cp("src/assets/LICENSE-Vazirmatn", join(output, "licenses", "Vazirmatn.txt"));
 } finally {
   await server.close();
 }
