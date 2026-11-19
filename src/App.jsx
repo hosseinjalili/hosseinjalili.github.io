@@ -8,7 +8,6 @@ import {
   workDuration,
 } from "./resume";
 import about from "../_pages/about.md";
-import portrait from "./assets/hossein-portrait.webp?inline";
 import portraitPreview from "./assets/hossein-preview.webp?inline";
 import githubMark from "/media/github-mark.png?inline";
 import { useCurrentMonth } from "./useCurrentMonth";
@@ -242,12 +241,11 @@ function Home({ posts }) {
           <figure className="cinema-portrait" ref={portraitRef}>
             <div className="cinema-media">
               <div className="cinema-linework" aria-hidden="true" />
-              <img
-                src={import.meta.env.SSR ? portraitPreview : portrait}
+              <div
                 className="cinema-photo"
-                alt={t(profile.name, profile.englishName)}
-                width="560"
-                height="569"
+                role="img"
+                aria-label={t(profile.name, profile.englishName)}
+                style={{ "--portrait-preview": `url(${portraitPreview})` }}
               />
             </div>
           </figure>
@@ -694,7 +692,9 @@ function Page({ path, posts }) {
         {t("رفتن به محتوا", "Skip to content")}
       </Link>
       <Header path={path} posts={posts} />
-      <main id="main">{page}</main>
+      <main id="main" tabIndex={-1}>
+        {page}
+      </main>
       <footer id="site-footer" className="wrap">
         <div className="footer-socials">
           <a href={profile.github} lang="en" dir="ltr">

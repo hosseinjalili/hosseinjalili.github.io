@@ -12,13 +12,21 @@ function uploadedImages(html) {
   ).filter(Boolean);
 }
 
-export function articleRecords(journal, renderMarkdown, lang = "fa") {
+export function articleRecords(
+  journal,
+  renderMarkdown,
+  lang = "fa",
+  publishedIds = new Set(journal.posts.map((post) => post.id)),
+) {
   return journal.posts
     .map((post) => {
       const legacy = legacyArticles.has(post.slug);
+      const prerendered = publishedIds.has(post.id) && /^[\w-]+$/.test(post.id);
       const url = legacy
         ? "/life/" + post.slug + "/"
-        : "/posts/?article=" + encodeURIComponent(post.id);
+        : prerendered
+          ? "/posts/" + post.id + "/"
+          : "/posts/?article=" + encodeURIComponent(post.id);
       const hasTranslation = post.englishTitle && post.englishBody;
       const translated = lang === "en" && hasTranslation;
       const body = translated ? post.englishBody : post.body;

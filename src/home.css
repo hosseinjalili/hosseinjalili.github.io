@@ -136,8 +136,10 @@
   display: block;
   width: 88%;
   height: 87%;
-  object-fit: cover;
-  object-position: center 11%;
+  background-image: url("/media/hossein.webp"), var(--portrait-preview);
+  background-position: center 11%;
+  background-repeat: no-repeat;
+  background-size: cover;
   clip-path: polygon(9% 0, 100% 0, 91% 100%, 0 100%);
   filter: grayscale(0.79) sepia(0.17) contrast(1.05);
   translate: var(--portrait-x, 0px) var(--portrait-y, 0px);
@@ -317,7 +319,7 @@
     aspect-ratio: 1.46;
   }
   .cinema-photo {
-    object-position: center top;
+    background-position: center top;
   }
   .cinema-copy h1 {
     margin: 10px 0;

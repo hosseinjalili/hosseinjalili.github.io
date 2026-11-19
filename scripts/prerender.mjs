@@ -20,9 +20,11 @@ if (!stylesheet) throw new Error("The built page is missing its stylesheet");
 if (!script) throw new Error("The built page is missing its script");
 const stylesheetPath = join(output, stylesheet[1]);
 const css = await readFile(stylesheetPath, "utf8");
-// Put the embedded fonts after the page markup so a partial response can paint.
 const fontFaces = /@font-face\s*\{[^{}]*\}/g;
-const fontCss = [...css.matchAll(fontFaces)].map(([face]) => face).join("\n");
+const fonts = [...css.matchAll(fontFaces)].map(([face]) => face);
+// Inner pages reuse the local fonts without carrying them in every document.
+const linkedFontCss = fonts.filter((face) => !face.includes("data:")).join("\n");
+const inlineFontCss = fonts.join("\n");
 const layoutCss = css.replace(fontFaces, "");
 // The prerendered page can finish loading before React's network request.
 const enhancement = `<script>
@@ -33,7 +35,7 @@ const enhancement = `<script>
 const template = shell
   .replace(stylesheet[0], () => `<style>${layoutCss}</style>`)
   .replace(script[0], "")
-  .replace("</body>", () => `<style>${fontCss}</style>\n${enhancement}\n</body>`);
+  .replace("</body>", () => `<!--page-fonts-->\n${enhancement}\n</body>`);
 const escape = (value) =>
   String(value).replace(
     /[&<>"']/g,
@@ -61,8 +63,10 @@ try {
     });
   const posts = articleRecords(journal, renderBody);
   await cp("content", join(output, "content"), { recursive: true });
+  const paths = [...new Set([...routes, ...posts.map((post) => post.url)])]
+    .filter((path) => !path.includes("?"));
   const pages = ["fa", "en"].flatMap((lang) =>
-    routes.map((path) => ({
+    paths.map((path) => ({
       lang,
       path,
       urlPath: (lang === "en" ? "/en" : "") + path,
@@ -96,7 +100,10 @@ try {
           lang === "en" ? 'lang="en" dir="ltr"' : 'lang="fa" dir="rtl"',
         )
         .replace("<!--page-meta-->", () => meta)
-        .replace("<!--page-content-->", () => content),
+        .replace("<!--page-content-->", () => content)
+        .replace("<!--page-fonts-->", () =>
+          `<style>${path === "/" ? inlineFontCss : linkedFontCss}</style>`,
+        ),
     );
   }
   const sitemap = pages
